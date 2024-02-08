@@ -1,0 +1,1 @@
+INSERT INTO `menu_Gael`(`user_role`, `menu`, `level`, `menu_text`) VALUES ('USER','ADD_RATING',12,'Add Rating'), ('USER','MOD_RATING',13,'Modify Rating'), ('USER','DEL_RATING',14,'Delete Rating'), ('USER','TOPTEN_RATING',22,'Top Ten Rating'), ('ADMIN','ADD_USER',32,'Add User'), ('ADMIN','MOD_USER',33,'Modify User'), ('ADMIN','CANCEL_USER',34,'Deactivate User')
