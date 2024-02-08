@@ -21,7 +21,7 @@ public class LoginMysql {
         String db_user = "disney";
         String db_password = "Ma58toAa!YLtT9S9";
 
-        Connection cnx = getConnection(URL, db_user, db_user, db_password, prg_user, hashed64);
+        Connection cnx = getConnectionSQL(URL, db_user, db_user, db_password, prg_user, prg_pwd);
         if (cnx != null) {
             System.out.println("Bienvenido " + prg_user + " a la base de datos de Disney");
         } else {
