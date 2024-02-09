@@ -8,25 +8,20 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 
+import javax.swing.plaf.nimbus.State;
+
 class Menu {
     int level;
     String type;
     String menu;
     String menu_text;
     String query;
-}
 
-public Menu(int level, String type, String menu, String menu_text){
-    this.level = level;
-    this.type = type; // User or Admin
-    this.menu = menu;
-    this.menu_text = menu_text; // Display text
-    String query_user = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20) AND menu_Jorge.user_role = 'USER';";
-    String query_admin = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20,30) AND menu_Jorge.user_role = 'ADMIN';";
-    if (type.equals("USER")){
-        this.query = query_user;
-    } else {
-        this.query = query_admin;
+    public Menu(int level, String type, String menu, String menu_text){
+        this.level = level;
+        this.type = type; // User or Admin
+        this.menu = menu;
+        this.menu_text = menu_text; // Display text
     }
 }
 
@@ -58,9 +53,22 @@ public class LoginMysql {
         
     }
 
-    public static ArrayList<Menu> getOptionMenu(Connection cnx,){
+    public static ArrayList<Menu> getOptionMenu(Connection cnx)  {
         ArrayList<Menu> menu = new ArrayList<Menu>();
+        String query_user = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20) AND menu_Jorge.user_role = 'USER';";
+        String query_admin = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20,30) AND menu_Jorge.user_role = 'ADMIN';";
 
+        try {
+            PreparedStatement psu = cnx.prepareStatement(query_user);
+            ResultSet rsu = psu.executeQuery();
+            while (rsu.next() == true) {
+                String type = rsu.getObject(0).toString();
+                
+            }
+        } catch (Exception ex) {
+            System.out.println("getOptionMenu: "+ex.getMessage());
+        }
+        return menu;
     }
 
     public static Connection getConnectionSQL(String url, String user, String db_user, String db_password, String prg_user, String prg_password) {
