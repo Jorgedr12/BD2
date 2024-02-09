@@ -6,6 +6,29 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.ArrayList;
+
+class Menu {
+    int level;
+    String type;
+    String menu;
+    String menu_text;
+    String query;
+}
+
+public Menu(int level, String type, String menu, String menu_text){
+    this.level = level;
+    this.type = type; // User or Admin
+    this.menu = menu;
+    this.menu_text = menu_text; // Display text
+    String query_user = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20) AND menu_Jorge.user_role = 'USER';";
+    String query_admin = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20,30) AND menu_Jorge.user_role = 'ADMIN';";
+    if (type.equals("USER")){
+        this.query = query_user;
+    } else {
+        this.query = query_admin;
+    }
+}
 
 public class LoginMysql {
     public static void main(String[] args) throws NoSuchAlgorithmException {
@@ -33,6 +56,11 @@ public class LoginMysql {
             System.out.println("main: "+ex.getMessage());
         }
         
+    }
+
+    public static ArrayList<Menu> getOptionMenu(Connection cnx,){
+        ArrayList<Menu> menu = new ArrayList<Menu>();
+
     }
 
     public static Connection getConnectionSQL(String url, String user, String db_user, String db_password, String prg_user, String prg_password) {
