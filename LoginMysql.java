@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import javax.swing.plaf.nimbus.State;
 
+import com.mysql.cj.Query;
+
 class Menu {
     int level;
     String type;
@@ -53,17 +55,26 @@ public class LoginMysql {
         
     }
 
-    public static ArrayList<Menu> getOptionMenu(Connection cnx)  {
+    public static ArrayList<Menu> getOptionMenu(Connection cnx, String role)  {
         ArrayList<Menu> menu = new ArrayList<Menu>();
         String query_user = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20) AND menu_Jorge.user_role = 'USER';";
         String query_admin = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20,30) AND menu_Jorge.user_role = 'ADMIN';";
-
+        String query = "";
+        if (type.equals("USER")) {
+            query = query_user;
+        } else {
+            query = query_admin;
+        }
         try {
-            PreparedStatement psu = cnx.prepareStatement(query_user);
+            PreparedStatement psu = cnx.prepareStatement(query);
             ResultSet rsu = psu.executeQuery();
             while (rsu.next() == true) {
-                String type = rsu.getObject(0).toString();
-                
+                String type = rsu.getString(0);
+                int level = rsu.getInt(2);
+                String menu = rsu.getString(1);
+                String menu_text = rsu.getString(3);
+                Menu menu_row = new Menu(level, type, menu, menu_text);
+                menu_list.add(menu_row);
             }
         } catch (Exception ex) {
             System.out.println("getOptionMenu: "+ex.getMessage());
