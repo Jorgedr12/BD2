@@ -44,6 +44,7 @@ public class LoginMysql {
         Connection cnx = getConnectionSQL(URL, db_user, db_user, db_password, prg_user, prg_pwd);
         if (cnx != null) {
             System.out.println("Bienvenido " + prg_user + " a la base de datos de Disney");
+            mainCycle(cnx, prg_user);
         } else {
             System.out.println("Acceso denegado a " + prg_user + " a la base de datos de Disney");
         }
@@ -54,32 +55,42 @@ public class LoginMysql {
         }
         
     }
+    public static void mainCycle(Connection cnx, String user) {
+        ArrayList<Menu> menuPrincipal = getOptionMenu(cnx, "user");
+        int option = 0;
+        do {
 
-    public static ArrayList<Menu> getOptionMenu(Connection cnx, String role)  {
-        ArrayList<Menu> menu = new ArrayList<Menu>();
-        String query_user = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20) AND menu_Jorge.user_role = 'USER';";
-        String query_admin = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20,30) AND menu_Jorge.user_role = 'ADMIN';";
-        String query = "";
-        if (type.equals("USER")) {
+        } while (option != 0);
+
+
+    }
+
+    public static ArrayList<Menu> getOptionMenu(Connection cnx, String role) {
+        ArrayList<Menu> menu_list = new ArrayList<Menu>();
+        String query_user = "SELECT * FROM `menu_bob` WHERE level IN (10,20) AND menu_bob.user_role ='user';";
+        String query_admin= "SELECT * FROM `menu_bob` WHERE level IN (10,20) AND menu_bob.user_role ='admin';";
+        String query ="";
+        if (role.equals("user")) {
             query = query_user;
         } else {
             query = query_admin;
         }
         try {
-            PreparedStatement psu = cnx.prepareStatement(query);
-            ResultSet rsu = psu.executeQuery();
-            while (rsu.next() == true) {
-                String type = rsu.getString(0);
-                int level = rsu.getInt(2);
-                String menu = rsu.getString(1);
-                String menu_text = rsu.getString(3);
-                Menu menu_row = new Menu(level, type, menu, menu_text);
+            PreparedStatement ps = cnx.prepareStatement(query);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()== true) {
+                String type = rs.getString(0);
+                int level =   rs.getInt(1);
+                String menu = rs.getString(2);
+                String menu_text = rs.getString(3);
+                Menu menu_row = new Menu(level,type,menu,menu_text);
                 menu_list.add(menu_row);
             }
+            
         } catch (Exception ex) {
-            System.out.println("getOptionMenu: "+ex.getMessage());
+            System.out.println("getOptionMenu:"+ex.getMessage());
         }
-        return menu;
+        return menu_list;
     }
 
     public static Connection getConnectionSQL(String url, String user, String db_user, String db_password, String prg_user, String prg_password) {
