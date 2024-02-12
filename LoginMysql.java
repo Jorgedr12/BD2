@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
+import java.util.Scanner;
 
 import javax.swing.plaf.nimbus.State;
 
@@ -57,20 +58,37 @@ public class LoginMysql {
     }
     public static void mainCycle(Connection cnx, String user) {
         ArrayList<Menu> menuPrincipal = getOptionMenu(cnx, "user");
-        int option = 0;
+        String option = "0";
         do {
+            option = showMenu(menuPrincipal);
+        } while (option.equals("0") == false);
+    }
 
-        } while (option != 0);
+    public static String showMenu(ArrayList<Menu> menuList) {
+        int i = 1;
+        for (Menu menu : menuList) {
+            System.out.println(i + ":" + menu.menu_text);
+            i++;
+        }
 
+        Scanner scan = new Scanner(System.in);
+        System.out.println("Seleccione una opción:");
+        String option = scan.nextLine();
+
+        if (!option.equals("0")) {
+            int idx = Integer.parseInt(option);
+            option = menuList.get(idx).menu;
+        }
+        return option;
 
     }
 
     public static ArrayList<Menu> getOptionMenu(Connection cnx, String role) {
         ArrayList<Menu> menu_list = new ArrayList<Menu>();
-        String query_user = "SELECT * FROM `menu_bob` WHERE level IN (10,20) AND menu_bob.user_role ='user';";
-        String query_admin= "SELECT * FROM `menu_bob` WHERE level IN (10,20) AND menu_bob.user_role ='admin';";
+        String query_user = "SELECT * FROM `menu_Jorge` WHERE level IN (10,20) AND menu_Jorge.user_role ='USER';";
+        String query_admin= "SELECT * FROM menu_Jorge, user_Jorge WHERE user_Jorge.email = 'jorgedr@gmail.com'AND menu_Jorge.user_role = user_Jorge.role;";
         String query ="";
-        if (role.equals("user")) {
+        if (role.equals("USER")) {
             query = query_user;
         } else {
             query = query_admin;
