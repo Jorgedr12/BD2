@@ -99,12 +99,12 @@ public class LoginMysql {
             showMenu(mainMenu);
             option = getMenu(mainMenu);
             System.out.println("Option:"+option);
-            executeMenuOption(cnx, option);
+            executeMenuOption(cnx, option,user);
             
         } while (!option.equals("0"));
         
     }
-    public static void executeMenuOption(Connection cnx,String option){
+    public static void executeMenuOption(Connection cnx,String option, String user){
         String SQL;
         switch (option) {
             case "SHOW_RATING":
@@ -112,7 +112,7 @@ public class LoginMysql {
                 listRecords(cnx,SQL);
                 break;
             case "ADD_RATING":
-                addRating(cnx);
+                addRating(cnx,user);
                 break;
             case "LIST_SHOWS":
                 SQL = "SELECT username,email,role FROM user_Jorge";
@@ -139,7 +139,7 @@ public class LoginMysql {
                 break;
         }
     }
-    public static void addRating(Connection cnx){
+    public static void addRating(Connection cnx, String user){
         Scanner scan = new Scanner(System.in);
         System.out.print("Busca show o película:");
         String show = scan.nextLine();
@@ -152,6 +152,33 @@ public class LoginMysql {
             SQL = SQL.substring(SQL.indexOf(":")+1);
             System.out.println("SQL: " + SQL);
             listRecords(cnx,SQL);  
+            System.out.println("USER: "+user);
+            SQL = "SELECT ID FROM users WHERE email = ?";
+            ps = cnx.prepareStatement(SQL);
+            ps.setString(1, user);  
+            ResultSet rs = ps.executeQuery();
+            int id = 0;
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+            System.out.println("ID: "+id);
+            System.out.println("Show a calificar");
+            show = scan.nextLine();
+            System.out.println("Calificacion (0 a 5):");
+            int rating = scan.nextInt();
+            System.out.println("Comentario:");
+            String comentario = scan.nextLine();
+            comentario = scan.nextLine();
+            SQL = "INSERT INTO rating_Jorge (user_id,show,rating,comments) VALUES (?,?,?,?)";
+            ps = cnx.prepareStatement(SQL);
+            ps.setInt(1, id);
+            ps.setString(2, show);
+            ps.setInt(3, rating);
+            ps.setString(4, comentario);
+            System.err.println(ps.toString());
+            int r = ps.executeUpdate(SQL);
+            System.out.println("Inserted records:"+r);
+
         } catch (Exception ex) {
             System.out.println("addRating:"+ex.getMessage());
         }
