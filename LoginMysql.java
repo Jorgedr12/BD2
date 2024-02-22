@@ -54,7 +54,10 @@ public class LoginMysql {
      */
     public static void main(String[] args) throws NoSuchAlgorithmException {
         // TODO code application logic here
-        String prg_user = "jorgedr@gmail.com";
+        String prg_user ;
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Usuario:");
+        prg_user = scan.nextLine();
         String prg_pwd  = "12345";
         byte[] hashed = getSHA(prg_pwd);
         String hashed64 = hexString(hashed);
@@ -102,35 +105,83 @@ public class LoginMysql {
         
     }
     public static void executeMenuOption(Connection cnx,String option){
+        String SQL;
         switch (option) {
+            case "SHOW_RATING":
+                SQL = "SELECT * FROM rating_Jorge";
+                listRecords(cnx,SQL);
+                break;
+            case "ADD_RATING":
+                addRating(cnx);
+                break;
+            case "LIST_SHOWS":
+                SQL = "SELECT username,email,role FROM user_Jorge";
+                listRecords(cnx,SQL);
+                break;
+            
+            case "TOP_RATINGS":
+                SQL = "SELECT * FROM `vista_jorge_ratings`";
+                listRecords(cnx,SQL);
+                break;
+            
+            case "TOPTEN_RATING":
+                SQL = "SELECT * FROM `vista_jorge_ratings` LIMIT 0,10";
+                listRecords(cnx,SQL);
+                break;
+
             case "LIST_USERS":
-                listUsers(cnx);
+                SQL = "SELECT username,email,role FROM user_Jorge";
+                listRecords(cnx,SQL);
+                break;
+            case "SHOW_LOG":
+                SQL = "SELECT * FROM zlog_jorge ORDER BY id DESC LIMIT 0,10";
+                listRecords(cnx,SQL);
+                break;
         }
     }
-    public static void listUsers(Connection cnx){
+    public static void addRating(Connection cnx){
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Busca show o película:");
+        String show = scan.nextLine();
+        show = "%"+show+"%";
+        String SQL = "SELECT show_id,title FROM shows WHERE title LIKE ? ORDER BY title";
+        try {
+            PreparedStatement ps = cnx.prepareStatement(SQL);
+            ps.setString(1, show);
+            SQL = ps.toString();
+            SQL = SQL.substring(SQL.indexOf(":")+1);
+            System.out.println("SQL: " + SQL);
+            listRecords(cnx,SQL);  
+        } catch (Exception ex) {
+            System.out.println("addRating:"+ex.getMessage());
+        }
+
+    }
+
+    public static void listRecords(Connection cnx, String SQL){
         try{
-            String SQL = "SELECT username,email,role FROM user_Jorge";
             PreparedStatement ps = cnx.prepareStatement(SQL);
             ResultSet rs = ps.executeQuery();
-            displeyRecords(rs);
+            displayRecords(rs);
         } catch (Exception ex) {
             System.out.println("listUsers:"+ex.getMessage());
         }
     }
-    public static void displeyRecords(ResultSet rs) throws SQLException {
+    public static void displayRecords(ResultSet rs) throws SQLException {
         try{
             ResultSetMetaData rsmd = rs.getMetaData();
             int count = rsmd.getColumnCount();
             for (int i = 1; i <= count; i++) {
-                System.out.print(rsmd.getColumnName(i)+"|");
+                System.out.print(rsmd.getColumnName(i) + " ");
             }
-            System.out.println("");
+            System.out.println();
             while (rs.next()) {
                 for (int i = 1; i <= count; i++) {
-                    System.out.print(rs.getString(i)+"|");
+                    System.out.print(rs.getString(i) + " ");
                 }
+                System.out.println();
             }
-            
+            System.out.println();
         } catch (Exception ex) {
             System.out.println("displeyRecords:"+ex.getMessage());
         }
