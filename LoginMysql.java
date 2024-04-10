@@ -118,6 +118,9 @@ public class LoginMysql {
                 SQL = "SELECT * FROM `zlog_jorge` order by ts DESC LIMIT 0,10";
                 listRecords(cnx, SQL);
                 break;
+            case "DEL_RATING":
+                delRating(cnx,user);
+                break;
         }
     }
     public static void modRating(Connection cnx, String user) {
@@ -136,6 +139,57 @@ public class LoginMysql {
             System.out.println("modRating:"+ex.getMessage());
         }
     }
+    public static void delRating(Connection cnx, String user) {
+        String SQL = "SELECT ratings_Jorge.id, ratings_Jorge.id_show, shows.title,ratings_Jorge.rating, ratings_Jorge.timestamp FROM ratings_Jorge, users, shows "
+                     +"WHERE users.email =? AND users.id = ratings_Jorge.id_user "
+                     +"AND ratings_Jorge.id_show = shows.show_id ORDER BY timestamp DESC "
+                     +"LIMIT 0,10";
+        try {
+            PreparedStatement ps = cnx.prepareStatement(SQL);
+            ps.setString(1, user);
+            SQL = ps.toString();
+            SQL = SQL.substring(SQL.indexOf(":")+1); // hack
+            System.out.println("SQL:"+SQL);
+            listRecords(cnx,SQL);
+            System.out.println("Que registro deseas borrar? :>");
+            Scanner scan = new Scanner(System.in);
+            int registro = scan.nextInt();
+            System.out.println("Registro a borrar:"+registro);
+            //autocommit lo hacemos FALSO
+            cnx.setAutoCommit(false);
+            //borramos el registro de la tabla ratings
+            SQL = "DELETE FROM ratings_Jorge WHERE id = ?";
+            ps = cnx.prepareStatement(SQL);
+            ps.setInt(1, registro);
+            int r = ps.executeUpdate();
+            //obtendremos el nombre del usuario
+            SQL = "SELECT name FROM users WHERE email = ? ";
+            ps = cnx.prepareStatement(SQL);
+            ps.setString(1, user);
+            ResultSet rs = ps.executeQuery();
+            String name = "";
+            while (rs.next()) {
+                name = rs.getString(1);
+            }            
+    
+            // Actualizamos
+            SQL = "UPDATE users a INNER JOIN (SELECT COUNT(*) AS num_reviews FROM vista_ratings_Jorge WHERE name=? GROUP BY name) b SET a.reviews = b.num_reviews WHERE a.name = ?";
+            ps = cnx.prepareStatement(SQL);
+            ps.setString(1, name);
+            ps.setString(2, name);
+            r = ps.executeUpdate();
+            System.out.println("Updated "+r+" records...");
+            cnx.commit();
+
+            
+
+            // final
+
+        } catch (Exception ex) {
+            System.out.println("delRating:"+ex.getMessage());
+        }
+    }
+
     public static void addRating(Connection cnx, String user) {
         Scanner scan = new Scanner(System.in); 
         System.out.print("Busca show o película:");
@@ -256,8 +310,8 @@ public class LoginMysql {
             ResultSet rs = ps.executeQuery();
             while (rs.next()== true) {
                 String type = rs.getString(1);
-                int level =   rs.getInt(2);
-                String menu = rs.getString(3);
+                int level =   rs.getInt(3);
+                String menu = rs.getString(2);
                 String menu_text = rs.getString(4);
                 Menu menu_row = new Menu(level,type,menu,menu_text);
                 menu_list.add(menu_row);
@@ -333,3 +387,4 @@ public class LoginMysql {
         return hexString.toString();
     }
 }
+
